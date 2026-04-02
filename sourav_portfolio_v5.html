@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sourav Das — A Life in Marketing</title>
+<meta name="description" content="Portfolio of Sourav Das — Brand & Marketing Strategist.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════
+   MARVEL-INSPIRED ROOT & RESET
+═══════════════════════════════════════════════════ */
+:root {
+  --marvel-red: #E62429;
+  --marvel-dark: #151515;
+  --marvel-darker: #0A0A0A;
+  --text-light: #F2F2F2;
+  --text-dim: #A0A0A0;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+*, *::before, *::after {
+  margin: 0; padding: 0; box-sizing: border-box;
+}
+
+body {
+  background: var(--marvel-darker);
+  color: var(--text-light);
+  font-family: 'Outfit', sans-serif;
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+/* Grain overlay for cinematic texture */
+body::after {
+  content: ''; position: fixed; inset: 0; z-index: 9000; pointer-events: none; opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+h1, h2, h3, h4 { text-transform: uppercase; font-weight: 800; letter-spacing: 1.5px; }
+
+/* ═══════════════════════════════════════════════════
+   CONTINUITY ELEMENT (THE TIMELINE)
+═══════════════════════════════════════════════════ */
+#timeline-container {
+  position: fixed;
+  top: 0; bottom: 0; left: 10vw;
+  width: 2px;
+  background: rgba(255,255,255,0.08);
+  z-index: 100;
+}
+
+#timeline-fill {
+  position: absolute;
+  top: 0; left: 0; width: 100%;
+  background: var(--marvel-red);
+  height: 0%; /* Driven by JS */
+  box-shadow: 0 0 15px var(--marvel-red);
+}
+
+.timeline-node {
+  position: absolute;
+  left: -5px;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: var(--marvel-dark);
+  border: 2px solid rgba(255,255,255,0.2);
+  transition: all 0.4s var(--ease);
+}
+
+.timeline-node.active {
+  background: var(--marvel-red);
+  border-color: var(--marvel-red);
+  box-shadow: 0 0 10px var(--marvel-red);
+  transform: scale(1.3);
+}
+
+/* ═══════════════════════════════════════════════════
+   LAYOUT & SECTIONS
+═══════════════════════════════════════════════════ */
+.content-wrapper {
+  padding-left: 15vw; /* Make room for timeline */
+  padding-right: 5vw;
+}
+
+.section {
+  position: relative;
+  min-height: 100vh;
+  padding: 10vh 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 1s var(--ease), transform 1s var(--ease);
+}
+
+.section.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Giant background numbering/text */
+.ghost-bg {
+  position: absolute;
+  top: 50%; left: -5%;
+  transform: translateY(-50%);
+  font-size: clamp(10rem, 25vw, 30rem);
+  font-weight: 800;
+  color: transparent;
+  -webkit-text-stroke: 2px rgba(255, 255, 255, 0.03);
+  z-index: -1;
+  user-select: none;
+  line-height: 0.8;
+}
+
+/* Typography styles matching original */
+.lbl { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.25em; color: var(--marvel-red); margin-bottom: 1rem; text-transform: uppercase; }
+.cht { font-size: clamp(3.5rem, 8vw, 6rem); line-height: 0.9; margin-bottom: 1.5rem; }
+.def { font-family: 'Libre Baskerville', serif; font-style: italic; font-size: 1.3rem; color: var(--text-dim); margin-bottom: 2rem; max-width: 700px; line-height: 1.6; }
+.bod { font-family: 'Outfit', sans-serif; font-size: 1.05rem; font-weight: 300; color: var(--text-light); max-width: 650px; margin-bottom: 1.5rem; opacity: 0.9; line-height: 1.7; }
+.rt { display: inline-block; background: var(--marvel-red); color: #fff; font-size: 0.7rem; letter-spacing: 0.15em; padding: 8px 16px; margin-bottom: 2rem; font-weight: 600; text-transform: uppercase; }
+.cn { font-family: 'Libre Baskerville', serif; font-size: 2.2rem; font-weight: 700; color: var(--text-light); margin-bottom: 0.5rem; text-transform: none; letter-spacing: normal; }
+
+/* Grid Layouts for content */
+.split-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+}
+
+@media (max-width: 900px) {
+  .split-grid { grid-template-columns: 1fr; gap: 2rem; }
+  #timeline-container { left: 20px; }
+  .content-wrapper { padding-left: 50px; }
+}
+
+/* Bullet lists and Skill blocks */
+.list-item { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 15px; opacity: 0.9; font-weight: 300; }
+.list-item::before { content: ''; width: 20px; height: 2px; background: var(--marvel-red); margin-top: 12px; flex-shrink: 0; }
+.skill-grid { display: grid; grid-template-columns: 1fr; gap: 1.2rem; }
+.skill-row { border-left: 2px solid rgba(255,255,255,0.1); padding-left: 20px; transition: border-color 0.3s; }
+.skill-row:hover { border-color: var(--marvel-red); }
+.skill-title { font-weight: 800; font-size: 0.85rem; letter-spacing: 0.1em; color: var(--marvel-red); margin-bottom: 5px; text-transform: uppercase; }
+.skill-desc { font-family: 'Libre Baskerville', serif; font-size: 1.05rem; color: var(--text-light); line-height: 1.5; }
+
+/* AI Tools Tags */
+.tags { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 2rem; }
+.tag { border: 1px solid rgba(230, 36, 41, 0.3); padding: 6px 16px; font-family: 'Libre Baskerville', serif; font-weight: 400; font-size: 1rem; transition: all 0.3s; border-radius: 2px; }
+.tag:hover { background: var(--marvel-red); border-color: var(--marvel-red); }
+
+/* Contact Cards */
+.contact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; }
+.ccard { background: rgba(255,255,255,0.02); border-top: 2px solid transparent; padding: 30px; transition: all 0.4s; }
+.ccard:hover { border-top-color: var(--marvel-red); background: rgba(255,255,255,0.05); transform: translateY(-5px); }
+.cl { font-size: 0.75rem; font-weight: 800; letter-spacing: 0.15em; color: var(--marvel-red); margin-bottom: 10px; text-transform: uppercase; }
+.cv { font-family: 'Libre Baskerville', serif; font-size: 1.3rem; font-weight: 700; margin-bottom: 8px; word-break: break-all; }
+.cn2 { font-size: 0.85rem; font-weight: 300; color: var(--text-dim); }
+
+/* Header Block for Prelude */
+.hero-title { font-size: clamp(5rem, 15vw, 12rem); line-height: 0.8; margin-bottom: 2rem; }
+.hero-title span.red { color: var(--marvel-red); }
+
+</style>
+</head>
+<body>
+
+  <div id="timeline-container">
+    <div id="timeline-fill"></div>
+    </div>
+
+  <div class="content-wrapper">
+
+    <div class="section" data-node="0%">
+      <div class="ghost-bg">00</div>
+      <div class="lbl">PRELUDE · 2019 — PRESENT</div>
+      <h1 class="hero-title">THE<br><span class="red">PIVOT</span></h1>
+      <p class="def">"An Electrical Engineering graduate who chose stories over circuits — and never looked back."</p>
+      <p class="bod">The pivot wasn't impulsive. It was instinctive. What drove me wasn't just ambition; it was curiosity. Rather than simply consuming information, I actively dismantle systems, rebuild them from scratch, and subject them to rigorous testing. I view every outcome—whether a definitive success or a structural failure—as a critical learning opportunity to refine future strategies.</p>
+    </div>
+
+    <div class="section" data-node="20%">
+      <div class="ghost-bg">I</div>
+      <div class="split-grid">
+        <div>
+          <div class="lbl">CHAPTER I</div>
+          <h2 class="cht">THE<br>LEARNER</h2>
+          <p class="def">"The act of beginning — before you know enough to be afraid."</p>
+          <p class="bod">I started with basics — filing Excel sheets and managing administrative tasks. But as I learned how a digital agency actually breathes, my interest shifted; instead of maintaining systems, I built them.</p>
+          <p class="bod">Auditing funnels across real estate, EdTech, non-profits, and hospitality, a pattern emerged. I realised SEO isn't just about search engines; it's about backend architecture and human psychology working as one.</p>
+          <p class="bod">This is where I learned: the unglamorous work — audits, debugging, A/B tests, structural decisions — is exactly what compounds into something real.</p>
+        </div>
+        <div>
+          <h3 class="cn">Task Venturers</h3>
+          <div class="rt">Operational Assistant → SEO Analyst → Operations Supervisor</div>
+          <div class="list-item">Built client websites across WordPress, Shopify, Kajabi, Kartra, Wix & Squarespace</div>
+          <div class="list-item">Engineered high-converting sales funnels via ClickFunnels 2.0 and GoHighLevel</div>
+          <div class="list-item">Deployed email automations across Mailchimp, Klaviyo, ActiveCampaign, Brevo & GetResponse</div>
+          <div class="list-item">Executed full-spectrum SEO — on-page, off-page, technical — using Semrush & Ahrefs</div>
+          <div class="list-item">Managed 3-person team — owned the dependency map so tasks moved in sync, not sequence</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" data-node="40%">
+      <div class="ghost-bg">II</div>
+      <div class="split-grid">
+        <div>
+          <div class="lbl">CHAPTER II</div>
+          <h2 class="cht">THE<br>CRAFTSMAN</h2>
+          <p class="def">"One who builds not for credit, but for the craft itself."</p>
+          <h3 class="cn">My Tasker</h3>
+          <div class="rt" style="background: transparent; border: 1px solid var(--marvel-red);">Operations & Design Executive</div>
+        </div>
+        <div>
+          <p class="bod">After four and a half years inside one system, I stepped into a leaner one. No inherited process. No safety net. At My Tasker, the work was raw — client proposals written from scratch, SOPs built from nothing, social content calibrated to every brand's individual pulse.</p>
+          <p class="bod">This is where I stopped inheriting workflows and started designing them. Google Ads refinements, funnel strategy, email automation with ConvertFlow — each one a new layer of understanding. The demand was total, and the reward was clarity: I learned to build the machine before feeding it fuel.</p>
+          <br>
+          <div class="skill-grid">
+            <div class="skill-row"><div class="skill-title">EXECUTION</div><div class="skill-desc">Client Proposals & SOPs</div></div>
+            <div class="skill-row"><div class="skill-title">STRATEGY</div><div class="skill-desc">Brand-Specific Content</div></div>
+            <div class="skill-row"><div class="skill-title">ACQUISITION</div><div class="skill-desc">Google Ads & Funnels</div></div>
+            <div class="skill-row"><div class="skill-title">RETENTION</div><div class="skill-desc">Email Automation</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" data-node="60%">
+      <div class="ghost-bg">III</div>
+      <div class="split-grid">
+        <div>
+          <div class="lbl">CHAPTER III</div>
+          <h2 class="cht">THE<br>SOLO CHAPTER</h2>
+          <p class="def">"What you do between chapters tells you who you actually are."</p>
+          <h3 class="cn">NGanapati Packers & Movers</h3>
+          <div class="rt">Freelance · Digital Marketing Consultant</div>
+        </div>
+        <div>
+          <p class="bod">I had worked on freelance projects before, but creating a complete digital footprint from nothing was different—it excited me. I took it as a challenge and delivered: monthly 90+ enquiries, and a functioning digital presence ready to scale.</p>
+          <p class="bod">I designed and launched a fully SEO-optimised website. Built the entire digital footprint from scratch — Google My Business, social channels, a six-month roadmap covering on-page and off-page strategy. Managed Google Search Ads with continuous bid optimisation.</p>
+          <br>
+          <div class="skill-grid">
+            <div class="skill-row"><div class="skill-title">BUILT FROM ZERO</div><div class="skill-desc">Complete website — designed, developed & SEO-optimised end to end</div></div>
+            <div class="skill-row"><div class="skill-title">DIGITAL FOOTPRINT</div><div class="skill-desc">GMB, social channels & 6-month SEO roadmap</div></div>
+            <div class="skill-row"><div class="skill-title">PAID ACQUISITION</div><div class="skill-desc">Google Search Ads with continuous bid optimisation</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" data-node="75%">
+      <div class="ghost-bg">IV</div>
+      <div class="split-grid">
+        <div>
+          <div class="lbl">CHAPTER IV</div>
+          <h2 class="cht">THE<br>ARCHITECT</h2>
+          <p class="def">"Given a blank canvas — chose to build an entire system instead of just filling it."</p>
+          <h3 class="cn">Dhanvesttor</h3>
+          <div class="rt" style="background: transparent; border: 1px solid var(--marvel-red);">Marketing Executive & SEO Analyst</div>
+        </div>
+        <div>
+          <p class="bod">When the brief is "build a brand to make women financially independent," you don't just produce content. You architect every layer—from strategy to execution—so platform, messaging, and process align.</p>
+          <p class="bod">I designed and launched the Dhanvesttor website from concept to deployment. Built the content calendar — not a spreadsheet, but a live editorial system spanning multiple platforms, with hooks, CTAs, format specs, and KPIs baked into every row. And then I started automating.</p>
+          <br>
+          <div class="skill-grid">
+            <div class="skill-row"><div class="skill-title">BRAND SYSTEM</div><div class="skill-desc">Website, identity & multi-platform content pipeline</div></div>
+            <div class="skill-row"><div class="skill-title">EDITORIAL ENGINE</div><div class="skill-desc">Granular content calendar with per-channel KPIs</div></div>
+            <div class="skill-row"><div class="skill-title">AI DEPLOYMENT</div><div class="skill-desc">Agentic workflows on N8N & Claude — automating research & analytics</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" data-node="90%">
+      <div class="ghost-bg">V</div>
+      <div class="split-grid">
+        <div>
+          <div class="lbl">CHAPTER V</div>
+          <h2 class="hero-title" style="color: var(--marvel-red);">AI</h2>
+          <div class="lbl" style="color: var(--text-dim); margin-top:-10px;">PROMPT ENGINEERING · GENERATIVE AI · AI WORKFLOWS</div>
+          <p class="def" style="margin-top: 2rem;">"When the tools evolve faster than the world can follow — understanding how they think becomes the real advantage."</p>
+          <p class="bod">In 2022, AI struggled to write a convincing paragraph. By 2026, it's outperforming humans in complex tasks. The curve wasn't gradual — it was vertical.</p>
+          <div class="tags">
+            <div class="tag">GPT-5</div><div class="tag">Kimi 2.5</div><div class="tag">Google Antigravity</div>
+            <div class="tag">Claude Cowork</div><div class="tag">N8N</div><div class="tag">Cursor</div>
+            <div class="tag">Midjourney</div>
+          </div>
+        </div>
+        <div>
+          <p class="bod" style="margin-bottom: 2rem;">To keep pace in a world moving this fast, AI became an integral part of how I work. But not as a shortcut. I spent the time understanding how the models actually work — their architectures, their blind spots, where they excel and where they quietly fail. That understanding is what lets me choose the right model for the right task.</p>
+          <div class="skill-grid">
+            <div class="skill-row"><div class="skill-title">FINANCE INTELLIGENCE DASHBOARD</div><div class="skill-desc">Aggregating finance news & trend signals via targeted keywords</div></div>
+            <div class="skill-row"><div class="skill-title">AUTONOMOUS CONTENT ENGINE</div><div class="skill-desc">End-to-end workflows generating brand-calibrated content</div></div>
+            <div class="skill-row"><div class="skill-title">SOCIAL ANALYTICS DASHBOARD</div><div class="skill-desc">Unified reporting layer across platforms</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" data-node="100%">
+      <div class="ghost-bg">VI</div>
+      <div class="lbl">CHAPTER VI · WHAT COMES NEXT</div>
+      <h2 class="hero-title">WHAT<br>COMES<br><span class="red">NEXT?</span></h2>
+      <p class="def">"The next chapter doesn't have a title yet. That's the point — let's write it together."</p>
+      
+      <div class="contact-grid" style="margin-top: 3rem;">
+        <div class="ccard">
+          <div class="cl">EMAIL</div>
+          <div class="cv">souravdas33official@gmail.com</div>
+          <div class="cn2">Response within 24 hours</div>
+        </div>
+        <div class="ccard">
+          <div class="cl">PHONE</div>
+          <div class="cv">+91 62913-06377</div>
+          <div class="cn2">Kolkata, India · IST (UTC+5:30)</div>
+        </div>
+        <div class="ccard">
+          <div class="cl">LINKEDIN</div>
+          <div class="cv">/in/souravdas33official/</div>
+          <div class="cn2">Brand & Marketing Strategist</div>
+        </div>
+        <div class="ccard">
+          <div class="cl">OPEN TO</div>
+          <div class="cv">Growth · Brand Roles</div>
+          <div class="cn2">Full-time · Remote-friendly</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // ═════════════════════════════════════════════════════════
+    // CONTINUITY TRACKER & SCROLL REVEAL (THE MARVEL EFFECT)
+    // ═════════════════════════════════════════════════════════
+    
+    document.addEventListener("DOMContentLoaded", () => {
+      const sections = document.querySelectorAll('.section');
+      const timelineContainer = document.getElementById('timeline-container');
+      const timelineFill = document.getElementById('timeline-fill');
+      
+      // 1. Create Nodes on the Timeline corresponding to sections
+      const nodes = [];
+      sections.forEach((sec, index) => {
+        const node = document.createElement('div');
+        node.className = 'timeline-node';
+        timelineContainer.appendChild(node);
+        nodes.push({ element: node, section: sec });
+      });
+
+      // 2. Scroll logic
+      function updateTimeline() {
+        const scrollY = window.scrollY;
+        const windowHeight = window.innerHeight;
+        const documentHeight = document.body.scrollHeight;
+        
+        // Calculate fill percentage
+        const scrollPercent = (scrollY / (documentHeight - windowHeight)) * 100;
+        timelineFill.style.height = `${Math.min(100, Math.max(0, scrollPercent))}%`;
+
+        // Update sections visibility and node positions
+        nodes.forEach((item, index) => {
+          const rect = item.section.getBoundingClientRect();
+          const sectionCenter = rect.top + (rect.height / 2);
+          
+          // Position the node on the timeline physically relative to the section's center
+          const nodeTopPercent = ((scrollY + sectionCenter) / documentHeight) * 100;
+          item.element.style.top = `${nodeTopPercent}%`;
+
+          // Trigger "active/visible" state when section is well within viewport
+          if (rect.top < windowHeight * 0.75 && rect.bottom > windowHeight * 0.25) {
+            item.section.classList.add('visible');
+            item.element.classList.add('active');
+          } else {
+            item.element.classList.remove('active');
+          }
+        });
+      }
+
+      window.addEventListener('scroll', updateTimeline);
+      window.addEventListener('resize', updateTimeline);
+      
+      // Initial trigger
+      setTimeout(updateTimeline, 100);
+    });
+  </script>
+
+</body>
+</html>
